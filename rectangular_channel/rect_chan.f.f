@@ -4,11 +4,15 @@ c Micorfluidics Lab, IITKGP 2020
 c============================
 
 c-------------------------------------
-c Green's function of Laplace equation
+c Solving for a rectangular channel 
 c------------------------------------- 
 
 Implicit Double Precision (a-h,o-z)
-Dimension NSG(100),NE(100),Ncol(ncol)
-Dimension xw(100,100),yw(100,100),tw(100,100)
-Dimension WWW(3)
-Dimension 
+Dimension NE(nsg),Ncol(ncol)
+Dimension x2(nsg,200),y2(nsg,200),t2(nsg,200)
+Dimension xm(nsg,200),ym(nsg,200),tm(nsg,200)
+Dimension x1(nsg,200),y1(nsg,200),t1(nsg,200)
+Dimension x0(nsg*200),y0(nsg*200),t0(nsg*200)
+Dimension phi(nsg,200),dphidn(nsg,200)
+Dimension AL(nsg*200,nsg*200) BL(nsg*200) SOL(nsg*200)
+
