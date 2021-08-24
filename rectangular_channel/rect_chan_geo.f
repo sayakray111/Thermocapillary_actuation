@@ -13,7 +13,8 @@ c============================
 	 
       Implicit Double Precision (a-h,o-z)
       Dimension NE(nsg),Itp(nsg), xcntr(nsg), ycntr(nsg), Actis(nsg),
-      Dimension RT(nsg),ptx(nsg*2),pty(nsg*2)
+      Dimension RT(nsg),ptsx(500),ptsy(500)
+      Dimension line_points(500),curve_points(500)
       Dimension x2(200),y2(200),s2(200)
 	Dimension xm(200),ym(200),sm(200)
       Dimension xg2(nsg,200),yg2(nsg,200),sg2(nsg,200)
@@ -21,13 +22,10 @@ c============================
       Dimension phi0(nsg,200),dphidn0(nsg,200)
       Dimension AL(nsg*200,nsg*200) BL(nsg*200) SOL(nsg*200)
       Dimension elml(nsg,200)
-      
       Dimension tnx0(500),tny0(500),vnx0(500),vny0(500)
-	
 c-------------------------------------
 c common blocks 
 c-------------------------------------
-
       common xxx01/ Iflow,nsg,ngl,NE,Itp,RT
       common xxx02/ xg2,yg2,sg2,dphidn0,phi0
       common xxx03/ actis,xcntr,ycntr
@@ -35,7 +33,8 @@ c-------------------------------------
 	common xxx05/ Vx,Vy
 	common xxx06/ xwmin,ywmin,xwmax,ywmax
 	common xxx07/ x0,y0,s0,count_col
-      common xxx08/ ptx,pty
+      common xxx08/ ptsx,ptsy
+      common xxx09/ line_points,curve_points
 c-----------------------------------------------
 c checking whether it is a line or curve segment 
 c--------------------------------------------
@@ -46,7 +45,7 @@ c--------------------------------------------
 		read(4,*) nsg
 		read(4,*) xwmin,ywmin
           do l = 1,nsg
-			read(4,*,end=99) NE(l),RT(l),ptx(l),pty(l)
+			read(4,*,end=99) ptsx(l),ptsy(l)
 		end do
           
      99 continue  
@@ -54,16 +53,13 @@ c-------------------------------------
 c rectangle is discretised
 c-------------------------------------
           
-          do i = 1,number_points-2
-              slope1 = (pty(i+1)-pty(i))/(ptx(i+1)-ptx(i))
-              
-          end do
+          call lines_arc_break(ptsx,ptsy)
 		count_col = 0
 		
-		do k = 1,nsg
+		do k = 1,len(line_points)-1
           call elm_line(NE(k),RT(k)
-     +	  ,pt_x(k),pt_y(k)
-     +      ,pt_x(k+1),pt_y(k+1)
+     +	  ,ptsx(line_points(k)),ptsy(line_points(k))
+     +      ,ptsx(line_points(k+1)),ptsy(line_points(k+1))
      +      ,0
      +      ,0
      +      ,x2,y2,s2
@@ -93,11 +89,7 @@ c--------------------------------------
 c Circle will be discretised
 c---------------------------------
           
-		do p = 1,nsg
-              
-              
-          end do
-		
+	
 		  
 		  
 	end if
