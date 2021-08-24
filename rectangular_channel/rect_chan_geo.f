@@ -1,3 +1,9 @@
+c============================
+c Author: S.Ray
+c Microfluidics Lab, IITKGP 2020
+c============================
+      
+      
       subroutine rect_chan_geo
      +
      +   (Ncl
@@ -7,8 +13,7 @@
 	 
       Implicit Double Precision (a-h,o-z)
       Dimension NE(nsg),Itp(nsg), xcntr(nsg), ycntr(nsg), Actis(nsg),
-      Dimension RT(nsg),first_pt_x(nsg),last_pt_x(nsg)
-	Dimension first_pt_y(nsg),last_pt_y(nsg)
+      Dimension RT(nsg),ptx(nsg*2),pty(nsg*2)
       Dimension x2(200),y2(200),s2(200)
 	Dimension xm(200),ym(200),sm(200)
       Dimension xg2(nsg,200),yg2(nsg,200),sg2(nsg,200)
@@ -16,7 +21,7 @@
       Dimension phi0(nsg,200),dphidn0(nsg,200)
       Dimension AL(nsg*200,nsg*200) BL(nsg*200) SOL(nsg*200)
       Dimension elml(nsg,200)
-      Dimension actis(10),xcntr(10),ycntr(10)
+      
       Dimension tnx0(500),tny0(500),vnx0(500),vny0(500)
 	
 c-------------------------------------
@@ -30,7 +35,10 @@ c-------------------------------------
 	common xxx05/ Vx,Vy
 	common xxx06/ xwmin,ywmin,xwmax,ywmax
 	common xxx07/ x0,y0,s0,count_col
-	
+      common xxx08/ ptx,pty
+c-----------------------------------------------
+c checking whether it is a line or curve segment 
+c--------------------------------------------
 	
 	if(Iflow.eq.1)then
 	  
@@ -38,20 +46,24 @@ c-------------------------------------
 		read(4,*) nsg
 		read(4,*) xwmin,ywmin
           do l = 1,nsg
-			read(4,*,end=99) NE(l),RT(l),first_pt_x(l),last_pt_x(l)
-     +	   ,first_pt_y(1),last_pt_y(1)
+			read(4,*,end=99) NE(l),RT(l),ptx(l),pty(l)
 		end do
           
      99 continue  
 c-------------------------------------
 c rectangle is discretised
-c-------------------------------------		  
+c-------------------------------------
+          
+          do i = 1,number_points-2
+              slope1 = (pty(i+1)-pty(i))/(ptx(i+1)-ptx(i))
+              
+          end do
 		count_col = 0
 		
 		do k = 1,nsg
           call elm_line(NE(k),RT(k)
-     +	  ,first_pt_x(k),first_pt_y(k)
-     +      ,last_pt_x(k),last_pt_y(k)
+     +	  ,pt_x(k),pt_y(k)
+     +      ,pt_x(k+1),pt_y(k+1)
      +      ,0
      +      ,0
      +      ,x2,y2,s2
@@ -80,8 +92,11 @@ c-------------------------------------
 c--------------------------------------
 c Circle will be discretised
 c---------------------------------
-		  call elm_line(NE(4),RT(4),first_pt4,0.0D0,last_pt4,0.0D0,0,x2
-          + ,y2,s2,xm,ym,sm)
+          
+		do p = 1,nsg
+              
+              
+          end do
 		
 		  
 		  
