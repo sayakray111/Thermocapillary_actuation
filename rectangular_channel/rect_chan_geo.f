@@ -38,14 +38,12 @@ c-------------------------------------
 c-----------------------------------------------
 c checking whether it is a line or curve segment 
 c--------------------------------------------
-	
+	nsg = len(lines_points)+len(curves_points)-2
 	if(Iflow.eq.1)then
 	  
           open(4,file='details_boundary.dat')
-		read(4,*) nsg
-		read(4,*) xwmin,ywmin
           do l = 1,nsg
-			read(4,*,end=99) ptsx(l),ptsy(l)
+			read(4,*,end=99) NE(l),ptsx(l),ptsy(l)
 		end do
           
      99 continue  
