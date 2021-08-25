@@ -40,31 +40,25 @@ c  sm: arc length at the element mid-nodes
 c
 c  xe,ye: end nodes
 c  xm,ym: mid nodes
-c
 c-----------------------------------------------------
 
       Implicit Double Precision (a-h,o-z)
 
-      Dimension Xe(100),Ye(100),se(100)
-      Dimension Xm(100),Ym(100),sm(100)
+      Dimension Xe(129),Ye(129),se(129)
+      Dimension Xm(128),Ym(128),sm(128)
 
 c------------
 c one element
 c------------
 
       If(N.eq.1) then
-
        xe(1) = X1 
        ye(1) = Y1 
-
        xe(2) = X2 
        ye(2) = Y2 
-
        se(1) = sinit
        se(2) = se(1)+Dsqrt( (X2-X1)**2+(Y2-Y1)**2)
-
        Go to 99
-
       End If
 
 c--------
@@ -97,10 +91,10 @@ c--------------------
 
       Do i=2,N1
         Xe(i)  = Xe(i-1)+deltax
-        Ye(i)  = Ye(i-1)+deltaY
-        se(i)  = se(i-1)+Dsqrt(deltax**2+deltay**2)
+        Ye(i)  = Ye(i-1)+deltay
+        se(i)  = se(i-1)+sqrt(deltax**2+deltay**2)
         deltax = deltax*alpha
-        deltaY = deltay*alpha
+        deltay = deltay*alpha
       End Do
 
       Go to 99
@@ -113,10 +107,23 @@ c even number of points
 c----------------------
 
       If(mod(N,2).eq.0) then
-   
+
       Xh = 0.5D0*(X1+X2)      ! mid-point
       Yh = 0.5D0*(Y1+Y2)
 
+      If(N.eq.2) then
+       xe(1) = X1 
+       ye(1) = Y1 
+       xe(2) = Xh
+       ye(2) = Yh 
+       xe(3) = X2 
+       ye(3) = Y2 
+       se(1) = sinit
+       se(2) = se(1)+Dsqrt( (Xh-X1)**2+(Yh-Y1)**2)
+       se(3) = se(2)+Dsqrt( (X2-Xh)**2+(Y2-Yh)**2)
+       Go to 99
+      End If
+   
       Nh  = N/2
       Nh1 = Nh+1
 
@@ -124,7 +131,7 @@ c----------------------
         alpha  = 1.0D0
         factor = 1.0D0/Nh
       Else
-        texp   = 1.0D0/(Nh-1.0)
+        texp   = 1.0D0/(Nh-1.0D0)
         alpha  = ratio**texp
         factor = (1.0D0-alpha)/(1.0D0-alpha**Nh)
       End If
@@ -138,18 +145,18 @@ c----------------------
 
       Do i=2,Nh1
         Xe(i)  = Xe(i-1)+deltax
-        Ye(i)  = Ye(i-1)+deltaY
+        Ye(i)  = Ye(i-1)+deltay
         se(i)  = se(i-1)+sqrt(deltax**2+deltay**2)
         deltax = deltax*alpha
-        deltaY = deltay*alpha
+        deltay = deltay*alpha
       End Do
 
       deltax = deltax/alpha
-      deltaY = deltay/alpha
+      deltay = deltay/alpha
 
       Do i=Nh1+1,N1
         Xe(i)  = Xe(i-1)+deltax
-        Ye(i)  = Ye(i-1)+deltaY
+        Ye(i)  = Ye(i-1)+deltay
         se(i)  = se(i-1)+sqrt(deltax**2+deltay**2)
         deltax = deltax/alpha
         deltay = deltay/alpha
@@ -184,10 +191,10 @@ c-----------------------
 
       Do i=2,(N+3)/2
         Xe(i)  = Xe(i-1)+deltax
-        Ye(i)  = Ye(i-1)+deltaY
+        Ye(i)  = Ye(i-1)+deltay
         se(i)  = se(i-1)+sqrt(deltax**2+deltay**2)
         deltax = deltax*alpha
-        deltaY = deltay*alpha
+        deltay = deltay*alpha
       End Do
 
       deltax = deltax/(alpha**2)
@@ -195,14 +202,14 @@ c-----------------------
 
       Do i=(N+5)/2,N1
         Xe(i)  = Xe(i-1)+deltax
-        Ye(i)  = Ye(i-1)+deltaY
+        Ye(i)  = Ye(i-1)+deltay
         se(i)  = se(i-1)+sqrt(deltax**2+deltay**2)
         deltax = deltax/alpha
-        deltaY = deltay/alpha
+        deltay = deltay/alpha
       End Do
 
 c-----
-c Done
+c done
 c-----
 
   99  Continue
@@ -218,7 +225,7 @@ c-------------------
       End Do
 
 c-----
-c Done
+c done
 c-----
 
       write (6,*) "elm_line: Geometric ratio: ",alpha

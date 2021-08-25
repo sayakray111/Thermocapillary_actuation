@@ -3,7 +3,7 @@
      +  (N
      +  ,ratio
      +  ,Xcnt,Ycnt
-     +  ,Radius
+     +  ,radius
      +  ,angle1,angle2
      +  ,sinit
      +  ,Isym
@@ -11,15 +11,15 @@
      +  ,Xm,Ym,Tm,sm
      +  )
 
-c-----------------------------------------
-c FDLIB
+c=============================================
+c FDLIB, BEMLIB
 c
 c Copyright by C. Pozrikidis, 1999
-c All rights reserved.
+c All rights reserved
 c
 c This program is to be used only under the
-c stipulations of the licensing agreement.
-c----------------------------------------
+c stipulations of the licensing agreement
+c=============================================
 
 c----------------------------------------------------------------
 c  Disretization of a circular arc into N elements
@@ -42,8 +42,8 @@ c----------------------------------------------------------------
 
       Implicit Double Precision (a-h,o-z)
 
-      Dimension Xe(100),Ye(100),Te(100),se(100)
-      Dimension Xm(100),Ym(100),Tm(100),sm(100)
+      Dimension Xe(129),Ye(129),Te(129),se(129)
+      Dimension Xm(128),Ym(128),Tm(128),sm(128)
 
 c------------
 c one element
@@ -51,15 +51,15 @@ c------------
 
       If(N.eq.1) then
 
-       xe(1) = X1
-       ye(1) = Y1
-       te(1) = angle1 
+       te(1) = angle1;
+       xe(1) = xcnt + radius*cos(te(1))
+       ye(1) = ycnt + radius*sin(te(1))
        se(1) = sinit
 
-       xe(2) = X2
-       ye(2) = Y2
-       te(2) = angle12
-       se(2) = se(1)+Dsqrt( (X2-X1)**2+(Y2-Y1)**2)
+       te(2) = angle2
+       xe(2) = xcnt + radius*Dcos(te(2))
+       ye(2) = ycnt + radius*Dsin(te(2))
+       se(2) = se(1)+radius*abs(te(2)-te(1))
 
        Go to 99
 
@@ -86,7 +86,7 @@ c---------------------------
        factor = 1.0D0/(N-1.0D0+1.0D0)
       End If
 
-      deltat = (angle2-angle1) * factor   ! aperture of first element
+      deltat = (angle2-angle1)*factor   ! aperture of first element
 
       te(1) = angle1                      ! first point
       Xe(1) = Xcnt + radius*Dcos(te(1))
@@ -110,10 +110,34 @@ c symmetric distribution
 c----------------------
 
 c---
-c even number of elements
+      If(N.eq.2) then
 c---
 
-      If(mod(N,2).eq.0) then
+      te(1) = angle1;
+      xe(1) = xcnt + radius*cos(te(1))
+      ye(1) = ycnt + radius*sin(te(1))
+      se(1) = sinit
+
+      angleh = 0.5D0*(angle1+angle2)     ! mid-point
+      te(2) = angleh
+      xe(2) = xcnt + radius*cos(te(2))
+      ye(2) = ycnt + radius*sin(te(2))
+      se(2) = se(1)+radius*abs(te(2)-te(1))
+
+      te(3) = angle2
+      xe(3) = xcnt + radius*cos(te(3))
+      ye(3) = ycnt + radius*sin(te(3))
+      se(3) = se(2)+radius*abs(te(3)-te(2))
+
+      Go to 99
+
+c----
+      End If
+c----
+
+c----
+      If(mod(N,2).eq.0) then  ! even number of elements
+c----
 
       angleh = 0.5D0*(angle1+angle2)      ! mid-point
 
@@ -158,9 +182,9 @@ c---
 
       End If
 
-c---
+c-----------------------
 c odd number of elements
-c---
+c-----------------------
 
       texp  = 2.0D0/(N-1.0D0)
       alpha = ratio**texp
