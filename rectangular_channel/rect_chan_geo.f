@@ -42,7 +42,7 @@ c--------------------------------------------
 
       open(4,file='details_boundary.dat')
       do l = 1,nsg
-		read(4,*,end=99) NE(l),ptsx(l),ptsy(l)
+	   read(4,*,end=99) NE(l),ptsx(l),ptsy(l)
       end do
       call lines_arc_break(ptsx,ptsy)
    99	continue  
@@ -61,7 +61,7 @@ c-------------------------------------
       count_col = 0
 		
       do k = 1,len(line_points)-1
-      call elm_line(NE(k),RT(k)
+       call elm_line(NE(k),RT(k)
      +   ,ptsx(line_points(k)),ptsy(line_points(k))
      +   ,ptsx(line_points(k+1)),ptsy(line_points(k+1))
      +   ,0
@@ -89,12 +89,6 @@ c-------------------------------------
        
       end do 
 
-
-       
-	
-		  
-		  
-	
       Return
       end
 	  
