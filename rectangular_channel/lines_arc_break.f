@@ -6,7 +6,7 @@ c============================
           subroutine lines_arc_break(ptsx,ptsy)
          
           Implicit Double Precision (a-h,o-z)
-          Dimension line_points(500),curve_points(500)
+          Dimension line_points(500,500),curve_points(500,500)
           Dimension ptsx(500),ptsy(500)
           
           common xxx01/ ptsx,ptsy
@@ -43,16 +43,16 @@ c-------------------------------------------------
                      line_points(p1,count+1)=i+k
 				   flag = 1
 		       else 
-                     curve_points(pl,count1)=i+k-1
-				   curve_points(pl,count1+1)=i+k
+                     curve_points(pl,1)=i+k-1
+				   curve_points(pl,2)=i+k
                      count1+=2
 				   pl+=1
 				   flag = 1
 				   exit
 			   end if
 		   end do
-		   inc = k+1
+		   inc = k-1
 		   flag = 0
-          end do		          
-          return 
+          end do
+	    return 
           end
