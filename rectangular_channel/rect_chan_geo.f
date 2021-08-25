@@ -62,8 +62,8 @@ c-------------------------------------
 		
       do k = 1,len(line_points)-1
        call elm_line(NE(k),RT(k)
-     +   ,ptsx(line_points(k)),ptsy(line_points(k))
-     +   ,ptsx(line_points(k+1)),ptsy(line_points(k+1))
+     +   ,ptsx(line_points(k,1)),ptsy(line_points(k,1))
+     +   ,ptsx(line_points(k,2)),ptsy(line_points(k,2))
      +   ,0
      +   ,0
      +   ,x2,y2,s2
