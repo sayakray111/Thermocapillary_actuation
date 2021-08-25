@@ -38,59 +38,63 @@ c-------------------------------------
 c-----------------------------------------------
 c checking whether it is a line or curve segment 
 c--------------------------------------------
-	nsg = len(lines_points)+len(curves_points)-2
-	if(Iflow.eq.1)then
-	  
-          open(4,file='details_boundary.dat')
-          do l = 1,nsg
-			read(4,*,end=99) NE(l),ptsx(l),ptsy(l)
-		end do
-          
-     99 continue  
-c-------------------------------------
-c rectangle is discretised
-c-------------------------------------
-          
-          call lines_arc_break(ptsx,ptsy)
-		count_col = 0
-		
-		do k = 1,len(line_points)-1
-          call elm_line(NE(k),RT(k)
-     +	  ,ptsx(line_points(k)),ptsy(line_points(k))
-     +      ,ptsx(line_points(k+1)),ptsy(line_points(k+1))
-     +      ,0
-     +      ,0
-     +      ,x2,y2,s2
-     +      ,xm,ym,sm)
-          
-            do i=1,NE(k)+1
-		   xg2(k,i) = x2(i)
-		   yg2(k,i) = y2(i)
-		   sg2(k,i) = s2(i)
-            end do
-		  
-		  do i = 1,NE(k)
-			count_col+=1
-			ddx = xg2(k,i)-xg2(k,i+1)
-			ddy = yg2(k,i)-yg2(k,i+1)
-			elml(k,i)=sqrt((ddx**2)+(ddy**2))
-			x0(count_col) = xm(i)
-			y0(count_col) = ym(i)
-			s0(count_col) = sm(i)
-			tnx0(count_col) = ddx/elml(k,i)
-			tny0(count_col) = ddy/elml(k,i)
-		  end do
-		  write(4,*) "The number of collocation points for the rectangle"
-		end do 
+      nsg = len(line_points)+len(curve_points)-2
 
+      open(4,file='details_boundary.dat')
+      do l = 1,nsg
+		read(4,*,end=99) NE(l),ptsx(l),ptsy(l)
+      end do
+      call lines_arc_break(ptsx,ptsy)
+   99	continue  
 c--------------------------------------
-c Circle will be discretised
+c print out the line and curve points --- 
 c---------------------------------
+	
+	do kl = 1,len(lines_points)
+		
+	end do
+c-------------------------------------
+c Discretisation of the lines
+c-------------------------------------
           
+          
+      count_col = 0
+		
+      do k = 1,len(line_points)-1
+      call elm_line(NE(k),RT(k)
+     +   ,ptsx(line_points(k)),ptsy(line_points(k))
+     +   ,ptsx(line_points(k+1)),ptsy(line_points(k+1))
+     +   ,0
+     +   ,0
+     +   ,x2,y2,s2
+     +   ,xm,ym,sm)
+          
+       do i=1,NE(k)+1
+         xg2(k,i) = x2(i)
+         yg2(k,i) = y2(i)
+         sg2(k,i) = s2(i)
+       end do
+		  
+       do i = 1,NE(k)
+         count_col+=1
+         ddx = xg2(k,i)-xg2(k,i+1)
+         ddy = yg2(k,i)-yg2(k,i+1)
+         elml(k,i)=sqrt((ddx**2)+(ddy**2))
+         x0(count_col) = xm(i)
+         y0(count_col) = ym(i)
+         s0(count_col) = sm(i)
+         tnx0(count_col) = ddx/elml(k,i)
+         tny0(count_col) = ddy/elml(k,i)
+       end do
+       
+      end do 
+
+
+       
 	
 		  
 		  
-	end if
+	
       Return
       end
 	  

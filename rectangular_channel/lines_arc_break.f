@@ -10,11 +10,11 @@ c============================
           Dimension ptsx(500),ptsy(500)
           
           common xxx01/ ptsx,ptsy
-          common xxx02/ line_points,curve_points,nsg
-c------------------------
-c putting the value of the first curved point
-c--------------------------------
-          
+          common xxx02/ line_points,curve_points
+c------------------------------------------------------------
+c Checking if the first point lies on a curve or a straight line 
+c----------------------------------------------------------
+          error_margin = 0.0001D0
           slope1=(ptsy(2)-ptsy(l))/(ptsx(2)-ptsx(l))
           slope2=(ptsy(3)-ptsy(2))/(ptsx(3)-ptsx(2))
           count1 = 1
@@ -23,31 +23,37 @@ c--------------------------------
               count1+=1
           end if
           
-c-------------------------------------
-c solving for the rest of the points
-c--------------------------------------
+c------------------------------------------------
+c finding which points are in line/curve segments
+c-------------------------------------------------
           
-          k = 1
-          count = 1
-          error_margin = 0.0001D0
-          do i=k,len(ptsx)
-            do l=i,len(ptsx)-2
-              slope1=(ptsy(l+1)-ptsy(l))/(ptsx(l+1)-ptsx(l))
-              slope2=(ptsy(l+2)-ptsy(l+1))/(ptsx(l+2)-ptsx(l+1))
-              if((slope1-slope2).LT.error_margin)then
-                  k = l+2
-                  line_points(count) = i
-                  line_points(count+1) = k
-                  continue
-              else 
-                  curve_points(count1)=l+1                  
-                  count1+=1
-                  k = l+1
-                  exit
-              end if
-            end do
-            count+=1
-          end do
           
-      return 
-      end
+          count = 0
+          count1 = 2
+		inc = 1
+		flag = 0
+          do i=1,len(ptsx),inc
+		   slope1=(ptsy(i+1)-ptsy(i))/(ptsx(i+1)-ptsx(i))
+		   do k = 2,len(ptsx)-i
+		       slope2=(ptsy(i+k)-ptsy(i))/(ptsx(i+k)-ptsx(i))
+		       if((slope1-slope2).LT.error_margin)then
+				   if(flag==0)then
+					   count+=1
+					end if
+                     line_points(count)=i
+                     line_points(count+1)=i+k
+				   flag = 1
+		       else 
+                     curve_points(count1)=i+k-1
+				   curve_points(count1+1)=i+k
+                     count1+=2
+				   flag = 1
+				   exit
+			   end if
+			   
+		   end do
+		   inc = k+1
+		   flag = 0
+          end do		          
+          return 
+          end
