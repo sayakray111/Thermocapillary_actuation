@@ -14,7 +14,7 @@ c============================
       Implicit Double Precision (a-h,o-z)
       Dimension NE(nsg),Itp(nsg), xcntr(nsg), ycntr(nsg), Actis(nsg)
       Dimension RT(nsg),ptsx(np),ptsy(np)
-      Dimension line_points(500,500),curve_points(500,500)
+      Dimension line_points(500,2),curve_points(500,2)
       Dimension x2(200),y2(200),s2(200)
 	Dimension xm(200),ym(200),sm(200)
       Dimension xg2(nsg,200),yg2(nsg,200),sg2(nsg,200)
@@ -36,16 +36,18 @@ c-------------------------------------
       common xxx08/ ptsx,ptsy
       common xxx09/ line_points,curve_points
       common xxx10/ nlinepts,ncurvepts,np
-c-----------------------------------------------
-c Extracting the straight line segments from the data
-c--------------------------------------------
+c-----------------------------------------------------
+c Read in the numbers of line points and curve points 
+c------------------------------------------------------
       
       nsg = np+1
       open(4,file='details_boundary.dat')
       do l = 1,np
 	   read(4,*,end=99) ptsx(l),ptsy(l)
       end do
-      
+c-----------------------------------------------
+c Extracting the straight line segments from the data
+c--------------------------------------------      
       call lines_arc_break(ptsx,ptsy)
    99	continue  
 c--------------------------------------
@@ -62,15 +64,15 @@ c-------------------------------
 	do kll = 1,ncurvepts
 	  write(*,*) ptsx(curve_points(kll)),ptsy((curve_points(kll))
       end do
+c-------------------------------------------------
+c Setting the element parameters for each segment 
 c-----------------------------------------------------
-c Read in the numbers of line points and curve points 
-c------------------------------------------------------
-      do ll = 1,nlinepts
+      do ll = 1,nlinepts+ncurvepts
           NE(ll) = 1000
           RT(ll) = 0.5
       enddo
 c-------------------------------------
-c Discretisation of the lines
+c Discretisation of the collinear segments
 c-------------------------------------       
       count_col = 0
       do k = 1,nlinepts
@@ -104,13 +106,28 @@ c-----------------------------------------------------------
 c discretisation of the remaining curves with curved elements
 c---------------------------------------------------------
       do k = 1,ncurvepts
-		if(curve_points(k,1).eq.0.0D0)then
-			continue
+          if(curve_points(k,1).eq.0.0D0)then
+              continue
           end if
-          centr = ptsx(curve_points(k,1))
+          xmid=(ptsx(curve_points(k,1))+ptsx(curve_points(k,2)))/2
+          ymid=(ptsy(curve_points(k,1))+ptsy(curve_points(k,2)))/2
+          rhs=((xmid*xmid)+(ymid*ymid)-(ptsx(curve_points(k,1))*xmid)
+     +         -(ptsy(curve_points(k,1))*ymid))
+          r1=((ptsy(curve_points(k,2))-ptsy(curve_points(k,1)))
+     +      *(ptsx(curve_points(k,1))-xmid))
+     +      -((ptsx(curve_points(k,2))-ptsx(curve_points(k,1)))
+     +      *(ptsy(curve_points(k,1))-ymid))
+          xcntr(k)=(ptsy(curve_points(k,2))-ptsy(curve_points(k,1)))
+     +            *(rhs/r1)
+          ycntr(k)=(ptsx(curve_points(k,2))-ptsx(curve_points(k,1)))
+     +            *(rhs/r1)
+          radius=((ptsx(curve_points(k,1))-ptsx(curve_points(k,2)))**2
+     +          +(ptsy(curve_points(k,1))-ptsy(curve_points(k,2)))**2)
+          rad = sqrt(radius)
           call elm_arc(NE(k)
      +                ,RT(k)
-     +                ,
+     +                ,xcntr(k),ycntr(k)
+     +                ,rad
 	end do
       Return
       end

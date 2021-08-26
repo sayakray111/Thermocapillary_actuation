@@ -58,7 +58,7 @@ c-------------------------------------------------
            flag = 0
           end do
 c----------------------------------------------------------------------------
-c find out the number of elements stored in the arrays ----------------------
+c find out the number of collinear segments ----------------------
 c---------------------------------------------------------------------------
           do jk = 1,len(line_points)
            if(line_points(jk,1).neq.0)then
@@ -66,11 +66,7 @@ c---------------------------------------------------------------------------
            end if
           end do
 	
-          do jk = 1,len(curve_points)
-           if(curve_points(jk,1).neq.0)then
-            ncurvepts+=1
-           end if
-          end do
+          
 c-----------------------------------------------------------------------------------------------
 c Cleaning the curved sections data and assigning zero elements and last element to the curved set
 c---------------------------------------------------------------------------------------------		
@@ -82,10 +78,19 @@ c-------------------------------------------------------------------------------
             end if
            end do
           end do
+c----------------------------------------------------------------------------
+c find out the number of non collinear segments ----------------------
+c---------------------------------------------------------------------------
+      
+          do jk = 1,len(curve_points)
+           if(curve_points(jk,1).neq.0)then
+            ncurvepts+=1
+           end if
+          end do
 c---------------------------------------------------------------
 c Joining the last two points to get another curved segment------
 c-------------------------------------
           curve_points(ncurvepts+1,1)=len(ptsx)
-          curve_points(ncurvepts+1,2)=len(ptsx)
+          curve_points(ncurvepts+1,2)=1
           return 
           end
