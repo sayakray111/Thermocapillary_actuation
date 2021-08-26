@@ -38,12 +38,11 @@ c-------------------------------------
 c-----------------------------------------------
 c Extracting the straight line segments from the data
 c--------------------------------------------
-      
       write(4,*) 'Enter the number of points'
       read(4,*) np
       nsg = np+1
       open(4,file='details_boundary.dat')
-      do l = 1,nsg
+      do l = 1,np
 	   read(4,*,end=99) ptsx(l),ptsy(l)
       end do
       call lines_arc_break(ptsx,ptsy)
@@ -51,21 +50,25 @@ c--------------------------------------------
 c--------------------------------------
 c print out the line and curve points --- 
 c---------------------------------
-	
+c Print out the line points 
+c---------------------------------------
 	do kl = 1,len(lines_points)
-		write
+	  write(*,*) ptsx(line_points(kl)),ptsy((line_points(kl))
+	end do	
+c---------------------------
+c print out the curve points 
+c-------------------------------
+	do kll = 1,len(curve_points)
+	  write(*,*) ptsx(curve_points(kll)),ptsy((curve_points(kll))
 	end do
 c-------------------------------------
 c Discretisation of the lines
-c-------------------------------------
-          
-          
+c-------------------------------------       
       count_col = 0
-		
       do k = 1,len(line_points)-1
        call elm_line(NE(k),RT(k)
      +   ,ptsx(line_points(k,1)),ptsy(line_points(k,1))
-     +   ,ptsx(line_points(k,2)),ptsy(line_points(k,2))
+     +   ,ptsx(line_points(k+1,2)),ptsy(line_points(k+1,2))
      +   ,0
      +   ,0
      +   ,x2,y2,s2
@@ -89,10 +92,15 @@ c-------------------------------------
          tny0(count_col) = ddy/elml(k,i)
        end do    
       end do 
-c------------------------------------------------
-c discretisation of the remaining curves-----
-c----------------------------------------------
-      
+c-----------------------------------------------------------
+c discretisation of the remaining curves with curved elements
+c---------------------------------------------------------
+      do k = 1,len(curve_points)-1
+		if(curve_points(k,1).eq.0.0D0)then
+			continue
+		end if
+		
+	end do
       Return
       end
 	  

@@ -6,18 +6,16 @@ c============================
           subroutine lines_arc_break(ptsx,ptsy)
          
           Implicit Double Precision (a-h,o-z)
-          Dimension line_points(500,500),curve_points(500,500)
+          Dimension line_points(500,2),curve_points(500,2)
           Dimension ptsx(500),ptsy(500)
           
           common xxx01/ ptsx,ptsy
           common xxx02/ line_points,curve_points
 
           error_margin = 0.0001D0
-   
 c------------------------------------------------
 c Extracting the collinear points from the set
 c-------------------------------------------------
-          
 		inc = 1
 		p1 = 0
 		pl = 1
@@ -43,16 +41,18 @@ c-------------------------------------------------
 		     end do
 		     inc = k-1
 		     flag = 0
-          end do
-          
-          do h = 1,len(line_points)
+		end do
+c-----------------------------------------------------------------------------------------------
+c Cleaning the curved sections data and assigning zero elements and last element to the curved set
+c---------------------------------------------------------------------------------------------		
+		do h = 1,len(line_points)
               do a = 1,len(curve_points)
                   if(line_points(h,1).eq.curve_points(a,1))then
                       curve_points(a,1) = 0
-                      curve_point(a,2) = 0
-                  end if
-              end do
-          end do
-          
+                      curve_points(a,2) = 0
+				end if
+			end do
+		end do
+	    
 		return 
           end
