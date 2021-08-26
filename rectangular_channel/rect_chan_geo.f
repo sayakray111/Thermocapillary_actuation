@@ -15,7 +15,7 @@ c============================
       Dimension NE(nsg),Itp(nsg), xcntr(nsg), ycntr(nsg), Actis(nsg)
       Dimension RT(nsg),ptsx(np),ptsy(np)
       Dimension line_points(500,2),curve_points(500,2)
-      Dimension x2(200),y2(200),s2(200)
+      Dimension x2(500),y2(500),s2(500)
       Dimension xm(200),ym(200),sm(200)
       Dimension xg2(nsg,200),yg2(nsg,200),sg2(nsg,200)
       Dimension x0(500),y0(500),s0(500)
@@ -41,6 +41,8 @@ c Read in the numbers of line points and curve points
 c------------------------------------------------------
       
       nsg = np+1
+      real*8 radius,rad,theta1,dist,r1,rhs,xmid,ymid,t1,theta1,theta2
+     +      ,arc_length
       open(4,file='details_boundary.dat')
       do l = 1,np
        read(4,*,end=99) ptsx(l),ptsy(l)
@@ -67,67 +69,108 @@ c-------------------------------
 c-------------------------------------------------
 c Setting the element parameters for each segment 
 c-----------------------------------------------------
-      do ll = 1,nlinepts+ncurvepts
-       NE(ll) = 1000
-       RT(ll) = 0.5
+      do ll = 1,nlinepts
+       NEL(ll) = 10
+       RTL(ll) = 0.5
+      enddo
+      do ll = 1,ncurvepts
+       NEC(ll) = 10
+       RTC(ll) = 0.5
       enddo
 c-------------------------------------
-c Discretisation of the collinear segments
+c Discretisation of the segments
 c-------------------------------------       
       count_col = 0
-      do k = 1,nlinepts
-       call elm_line(NE(k),RT(k)
-     +  ,ptsx(line_points(k,1)),ptsy(line_points(k,1))
-     +  ,ptsx(line_points(k+1,2)),ptsy(line_points(k+1,2))
-     +  ,0
-     +  ,0
-     +  ,x2,y2,s2
-     +  ,xm,ym,sm)
-          
-       do i=1,NE(k)+1
-        xg2(k,i) = x2(i)
-        yg2(k,i) = y2(i)
-        sg2(k,i) = s2(i)
-       end do
+      count_seg = 0
+      linepos = 0
+      curvepos = 0
+      inc = 1
+      pl = 0
+      pc = 0
+c--------------------------------------------------------
+c We check if the point falls on a collinear segment 
+c--------------------------------------------------------
+      do k = 1,np,inc
+       do lc = 1,nlinepts
+           if(line_points(lc,1).eq.k)then
+              linepos=1
+              pl+=1
+           end if  
+       enddo
+       do cc = 1,ncurvepts
+           if(curve_points(cc,1).eq.k)then
+              curvepos=1
+              pc+=1
+           end if  
+       enddo
+       if(linepos.eq.1)then
+        call elm_line(NEL(pl),RTL(pl)
+     +   ,ptsx(line_points(pl,1)),ptsy(line_points(pl,1))
+     +   ,ptsx(line_points(pl,2)),ptsy(line_points(pl,2))
+     +   ,0
+     +   ,0
+     +   ,x2,y2,s2
+     +   ,xm,ym,sm)
+        
+        count_seg+=1
+        do i=1,NEL(pl)+1
+         xg2(count_seg,i) = x2(i)
+         yg2(count_seg,i) = y2(i)
+         sg2(count_seg,i) = s2(i)
+        end do
 		  
-       do i = 1,NE(k)
-        count_col+=1
-        ddx = xg2(k,i)-xg2(k,i+1)
-        ddy = yg2(k,i)-yg2(k,i+1)
-        elml(k,i)=sqrt((ddx**2)+(ddy**2))
-        x0(count_col) = xm(i)
-        y0(count_col) = ym(i)
-        s0(count_col) = sm(i)
-        tnx0(count_col) = ddx/elml(k,i)
-        tny0(count_col) = ddy/elml(k,i)
-       end do    
-      end do 
-c-----------------------------------------------------------
-c discretisation of the remaining curves with curved elements
-c---------------------------------------------------------
-      do k = 1,ncurvepts
-       if(curve_points(k,1).eq.0.0D0)then
-        continue
-       end if
-       xmid=(ptsx(curve_points(k,1))+ptsx(curve_points(k,2)))/2
-       ymid=(ptsy(curve_points(k,1))+ptsy(curve_points(k,2)))/2
-       rhs=((xmid*xmid)+(ymid*ymid)-(ptsx(curve_points(k,1))*xmid)
-     +    -(ptsy(curve_points(k,1))*ymid))
-       r1=((ptsy(curve_points(k,2))-ptsy(curve_points(k,1)))
-     +   *(ptsx(curve_points(k,1))-xmid))
-     +   -((ptsx(curve_points(k,2))-ptsx(curve_points(k,1)))
-     +   *(ptsy(curve_points(k,1))-ymid))
-       xcntr(k)=(ptsy(curve_points(k,2))-ptsy(curve_points(k,1)))
-     +         *(rhs/r1)
-       ycntr(k)=(ptsx(curve_points(k,2))-ptsx(curve_points(k,1)))
-     +         *(rhs/r1)
-       radius=((ptsx(curve_points(k,1))-ptsx(curve_points(k,2)))**2
-     +       +(ptsy(curve_points(k,1))-ptsy(curve_points(k,2)))**2)
-       rad = sqrt(radius)
-       call elm_arc(NE(k)
-     +             ,RT(k)
-     +             ,xcntr(k),ycntr(k)
-     +             ,rad
+        do i = 1,NEL(pl)
+         count_col+=1
+         ddx = xg2(count_seg,i)-xg2(count_seg,i+1)
+         ddy = yg2(count_seg,i)-yg2(count_seg,i+1)
+         elml(count_seg,i)=sqrt((ddx**2)+(ddy**2))
+         x0(count_col) = xm(i)
+         y0(count_col) = ym(i)
+         s0(count_col) = sm(i)
+         tnx0(count_col) = ddx/elml(count_seg,i)
+         tny0(count_col) = ddy/elml(count_seg,i)
+        end do    
+        inc = line_pts(pl,2)-k
+c---------------------------------------------------------------------------------
+c We check if it falls on a non collinear segment and if it does then discretise it 
+c---------------------------------------------------------------------------------
+       elseif(curvepos.eq.1)then
+        if(curve_points(pc,1).eq.0.0D0)then
+          continue
+        end if
+        xmid=(ptsx(curve_points(pc,1))+ptsx(curve_points(pc,2)))/2
+        ymid=(ptsy(curve_points(pc,1))+ptsy(curve_points(pc,2)))/2
+        rhs=((xmid*xmid)+(ymid*ymid)-(ptsx(curve_points(pc,1))*xmid)
+     +     -(ptsy(curve_points(pc,1))*ymid))
+        r1=((ptsy(curve_points(pc,2))-ptsy(curve_points(pc,1)))
+     +    *(ptsx(curve_points(pc,1))-xmid))
+     +    -((ptsx(curve_points(pc,2))-ptsx(curve_points(pc,1)))
+     +    *(ptsy(curve_points(pc,1))-ymid))
+        xcntr(k)=(ptsy(curve_points(pc,2))-ptsy(curve_points(pc,1)))
+     +          *(rhs/r1)
+        ycntr(k)=(ptsx(curve_points(pc,2))-ptsx(curve_points(pc,1)))
+     +          *(rhs/r1)
+        radius=((ptsx(curve_points(pc,1))-ptsx(curve_points(pc,2)))**2
+     +        +(ptsy(curve_points(pc,1))-ptsy(curve_points(pc,2)))**2)
+        rad = sqrt(radius)
+        dist= ((ptsx(curve_points(pc,1))-xm)**2
+     +        +(ptsy(curve_points(pc,1))-ym)**2)
+        t1=abs((ptsy(curve_points(pc,1))-ptsy(curve_points(pc,2)))
+     +        /(ptsx(curve_points(pc,1))-ptsx(curve_points(pc,2)))) 
+        theta1 = atan(t1)
+        theta2 = theta1+asin(dist/radius)
+        arc_length = radius*(theta2-theta1)
+        count_seg+=1
+        call elm_arc(NEC(pc)
+     +              ,RTC(pc)
+     +              ,xcntr(pc),ycntr(pc)
+     +              ,rad
+     +              ,theta1,theta2
+     +              ,arc_length
+     + 
+        
+       endif
+       inc = curve_points(pc,2)-k
       end do
       Return
       end
