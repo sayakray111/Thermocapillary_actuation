@@ -8,11 +8,23 @@ c============================
           Implicit Double Precision (a-h,o-z)
           Dimension line_points(500,2),curve_points(500,2)
           Dimension ptsx(500),ptsy(500)
-          
+		
+          error_margin = 0.0001D0
+		nlinepts = 0
+		ncurvepts = 0
           common xxx01/ ptsx,ptsy
           common xxx02/ line_points,curve_points
 
           error_margin = 0.0001D0
+c---------------------------------------
+c Filling the matrices with zero values
+c------------------------------------------
+		do ll = 1,500
+			line_points(ll,:) = 0
+		end do
+		do ll = 1,500
+			curve_points(ll,:) = 0
+		end do
 c------------------------------------------------
 c Extracting the collinear points from the set
 c-------------------------------------------------
@@ -41,6 +53,18 @@ c-------------------------------------------------
 		     end do
 		     inc = k-1
 		     flag = 0
+		end do
+c----------------------------------------------------------------------------
+c find out the number of elements stored in the arrays ----------------------
+c---------------------------------------------------------------------------
+		do jk = 1,len(line_points)
+			if(line_points(jk,1).neq.0)
+			  nlinepts+=1
+	end do
+	
+	do jk = 1,len(curve_points)
+			if(curve_points(jk,1).neq.0)
+			  ncurvepts+=1
 		end do
 c-----------------------------------------------------------------------------------------------
 c Cleaning the curved sections data and assigning zero elements and last element to the curved set
