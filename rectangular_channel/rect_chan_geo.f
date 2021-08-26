@@ -35,6 +35,7 @@ c-------------------------------------
 	common xxx07/ x0,y0,s0,count_col
       common xxx08/ ptsx,ptsy
       common xxx09/ line_points,curve_points
+      common xxx10/ nlinepts,ncurvepts
 c-----------------------------------------------
 c Extracting the straight line segments from the data
 c--------------------------------------------
