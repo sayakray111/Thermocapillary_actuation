@@ -41,7 +41,7 @@ c-------------------------------------
 c common blocks 
 c-------------------------------------
 
-      common xxx01/ Iflow,nsg,ngl,NE,Itp,RT
+      common xxx01/ Iflow,nsg,ngl,NE,Itp,RT,np
       common xxx02/ xg2,yg2,sg2,dphidn0,phi0
       common xxx03/ actis,xcntr,ycntr
 	common xxx04/ tnx0,tny0,vnx0,vny0
@@ -64,14 +64,15 @@ c-------------------------------------
       write (6,*) " ----------"
 
       read (5,*) Iflow
+      write(6,*) "Enter the number of points" 
+      read (5,*) np
+      if(Iflow.eq.0) go to 99
 	  
-	  if(Iflow.eq.0) go to 99
-	  
-	  if(Iflow.neq.1 and Iflow.ne.2)then
+      if(Iflow.neq.1 and Iflow.ne.2)then
 	     write (6,*) "Invalid option"
 		 write (6,*) "Try again"
 		 go to 94
-	  end if
+      end if
 	  
   99  continue 
       Itry = 1
@@ -86,10 +87,6 @@ c-------------------------------------
 c-------------------------------------
 c create the element matrices
 c-------------------------------------
-      
-	  
-
-
       Stop
       end
 

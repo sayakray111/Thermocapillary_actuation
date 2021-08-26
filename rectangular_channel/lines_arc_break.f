@@ -21,10 +21,12 @@ c---------------------------------------
 c Filling the matrices with zero values
 c------------------------------------------
           do ll = 1,500
-           line_points(ll,:) = 0
+           line_points(ll,1) = 0
+           line_points(ll,2) = 0
           end do
           do ll = 1,500
-           curve_points(ll,:) = 0
+           curve_points(ll,1) = 0
+           curve_points(ll,2) = 0
           end do
 c------------------------------------------------
 c Extracting the collinear points from the set
@@ -80,6 +82,10 @@ c-------------------------------------------------------------------------------
             end if
            end do
           end do
-	    
+c---------------------------------------------------------------
+c Joining the last two points to get another curved segment------
+c-------------------------------------
+          curve_points(ncurvepts+1,1)=len(ptsx)
+          curve_points(ncurvepts+1,2)=len(ptsx)
           return 
           end
