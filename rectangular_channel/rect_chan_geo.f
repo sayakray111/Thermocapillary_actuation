@@ -14,7 +14,7 @@ c============================
       Implicit Double Precision (a-h,o-z)
       Dimension NE(nsg),Itp(nsg), xcntr(nsg), ycntr(nsg), Actis(nsg),
       Dimension RT(nsg),ptsx(500),ptsy(500)
-      Dimension line_points(500),curve_points(500)
+      Dimension line_points(500,500),curve_points(500,500)
       Dimension x2(200),y2(200),s2(200)
 	Dimension xm(200),ym(200),sm(200)
       Dimension xg2(nsg,200),yg2(nsg,200),sg2(nsg,200)
@@ -36,13 +36,15 @@ c-------------------------------------
       common xxx08/ ptsx,ptsy
       common xxx09/ line_points,curve_points
 c-----------------------------------------------
-c checking whether it is a line or curve segment 
+c Extracting the straight line segments from the data
 c--------------------------------------------
-      nsg = len(line_points)+len(curve_points)-2
-
+      
+      write(4,*) 'Enter the number of points'
+      read(4,*) np
+      nsg = np+1
       open(4,file='details_boundary.dat')
       do l = 1,nsg
-	   read(4,*,end=99) NE(l),ptsx(l),ptsy(l)
+	   read(4,*,end=99) ptsx(l),ptsy(l)
       end do
       call lines_arc_break(ptsx,ptsy)
    99	continue  
@@ -51,7 +53,7 @@ c print out the line and curve points ---
 c---------------------------------
 	
 	do kl = 1,len(lines_points)
-		
+		write
 	end do
 c-------------------------------------
 c Discretisation of the lines
@@ -85,10 +87,12 @@ c-------------------------------------
          s0(count_col) = sm(i)
          tnx0(count_col) = ddx/elml(k,i)
          tny0(count_col) = ddy/elml(k,i)
-       end do
-       
+       end do    
       end do 
-
+c------------------------------------------------
+c discretisation of the remaining curves-----
+c----------------------------------------------
+      
       Return
       end
 	  

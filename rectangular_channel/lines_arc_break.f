@@ -15,9 +15,9 @@ c============================
           error_margin = 0.0001D0
    
 c------------------------------------------------
-c finding which points are in line/curve segments
+c Extracting the collinear points from the set
 c-------------------------------------------------
-          count = 0
+          
 		inc = 1
 		p1 = 0
 		pl = 1
@@ -28,18 +28,14 @@ c-------------------------------------------------
 		       slope2=(ptsy(i+k)-ptsy(i))/(ptsx(i+k)-ptsx(i))
 		       if((slope1-slope2).LT.error_margin)then
 				    if(flag==0)then
-					  count+=1
 					  p1+=1
 					end if
-					
-                      line_points(p1,count)=i
-                      line_points(p1,count+1)=i+k
+                      line_points(p1,1)=i
+                      line_points(p1,2)=i+k
 					flag = 1
-					
 		       else 
                       curve_points(pl,1)=i+k-1
 					curve_points(pl,2)=i+k
-                      count1+=2
 					pl+=1
 					flag = 1
 					exit
@@ -48,5 +44,15 @@ c-------------------------------------------------
 		     inc = k-1
 		     flag = 0
           end do
+          
+          do h = 1,len(line_points)
+              do a = 1,len(curve_points)
+                  if(line_points(h,1).eq.curve_points(a,1))then
+                      curve_points(a,1) = 0
+                      curve_point(a,2) = 0
+                  end if
+              end do
+          end do
+          
 		return 
           end
