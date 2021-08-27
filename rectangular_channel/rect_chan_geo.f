@@ -14,7 +14,6 @@ c============================
       Implicit Double Precision (a-h,o-z)
       Dimension NE(nsg),Itp(nsg), xcntr(nsg), ycntr(nsg), Actis(nsg)
       Dimension RT(nsg),ptsx(np),ptsy(np)
-      Dimension line_points(500,2),curve_points(500,2)
       Dimension x2(500),y2(500),s2(500)
       Dimension xm(200),ym(200),sm(200)
       Dimension xg2(nsg,200),yg2(nsg,200),sg2(nsg,200)
@@ -23,6 +22,10 @@ c============================
       Dimension AL(nsg*200,nsg*200) BL(nsg*200) SOL(nsg*200)
       Dimension elml(nsg,200)
       Dimension tnx0(500),tny0(500),vnx0(500),vny0(500)
+      Integer*4 :: line_points(500,2),curve_points(500,2)
+      Integer*4 :: count_seg,count_col,k,inc,pl,pc,linepos,curvepos
+      real*8 radius,rad,theta1,dist,r1,rhs,xmid,ymid,t1,theta1,theta2
+     +      ,arc_length
 c-------------------------------------
 c common blocks 
 c-------------------------------------
@@ -41,8 +44,6 @@ c Read in the numbers of line points and curve points
 c------------------------------------------------------
       
       nsg = np+1
-      real*8 radius,rad,theta1,dist,r1,rhs,xmid,ymid,t1,theta1,theta2
-     +      ,arc_length
       open(4,file='details_boundary.dat')
       do l = 1,np
        read(4,*,end=99) ptsx(l),ptsy(l)
@@ -85,22 +86,23 @@ c-------------------------------------
       linepos = 0
       curvepos = 0
       inc = 1
+      k = 1
       pl = 0
       pc = 0
 c--------------------------------------------------------
 c We check if the point falls on a collinear segment 
 c--------------------------------------------------------
-      do k = 1,np,inc
+      do while(k<=np)
        do lc = 1,nlinepts
            if(line_points(lc,1).eq.k)then
               linepos=1
-              pl+=1
+              pl=pl+1
            end if  
        enddo
        do cc = 1,ncurvepts
            if(curve_points(cc,1).eq.k)then
               curvepos=1
-              pc+=1
+              pc=pc+1
            end if  
        enddo
        if(linepos.eq.1)then
@@ -112,7 +114,7 @@ c--------------------------------------------------------
      +   ,x2,y2,s2
      +   ,xm,ym,sm)
         
-        count_seg+=1
+        count_seg=count_seg+1
         do i=1,NEL(pl)+1
          xg2(count_seg,i) = x2(i)
          yg2(count_seg,i) = y2(i)
@@ -131,13 +133,11 @@ c--------------------------------------------------------
          tny0(count_col) = ddy/elml(count_seg,i)
         end do    
         inc = line_pts(pl,2)-k
+        k=k+inc
 c---------------------------------------------------------------------------------
 c We check if it falls on a non collinear segment and if it does then discretise it 
 c---------------------------------------------------------------------------------
        elseif(curvepos.eq.1)then
-        if(curve_points(pc,1).eq.0.0D0)then
-          continue
-        end if
         xmid=(ptsx(curve_points(pc,1))+ptsx(curve_points(pc,2)))/2
         ymid=(ptsy(curve_points(pc,1))+ptsy(curve_points(pc,2)))/2
         rhs=((xmid*xmid)+(ymid*ymid)-(ptsx(curve_points(pc,1))*xmid)
@@ -167,10 +167,15 @@ c-------------------------------------------------------------------------------
      +              ,rad
      +              ,theta1,theta2
      +              ,arc_length
-     + 
+     +              ,0
+     +              ,x2,y2,t2,s2
+     +              ,xm,ym,tm,sm)
         
-       endif
-       inc = curve_points(pc,2)-k
+        
+        inc = curve_points(pc,2)-k
+        k=k+inc
+        endif
+       
       end do
       Return
       end
