@@ -135,44 +135,36 @@ c--------------------------------------------------------
         inc = line_pts(pl,2)-k
         k=k+inc
 c---------------------------------------------------------------------------------
-c We check if it falls on a non collinear segment and if it does then discretise it 
+c We check if it falls on a curvy segment and if it does then discretise it 
 c---------------------------------------------------------------------------------
        elseif(curvepos.eq.1)then
-        xmid=(ptsx(curve_points(pc,1))+ptsx(curve_points(pc,2)))/2
-        ymid=(ptsy(curve_points(pc,1))+ptsy(curve_points(pc,2)))/2
-        rhs=((xmid*xmid)+(ymid*ymid)-(ptsx(curve_points(pc,1))*xmid)
-     +     -(ptsy(curve_points(pc,1))*ymid))
-        r1=((ptsy(curve_points(pc,2))-ptsy(curve_points(pc,1)))
-     +    *(ptsx(curve_points(pc,1))-xmid))
-     +    -((ptsx(curve_points(pc,2))-ptsx(curve_points(pc,1)))
-     +    *(ptsy(curve_points(pc,1))-ymid))
-        xcntr(k)=(ptsy(curve_points(pc,2))-ptsy(curve_points(pc,1)))
-     +          *(rhs/r1)
-        ycntr(k)=(ptsx(curve_points(pc,2))-ptsx(curve_points(pc,1)))
-     +          *(rhs/r1)
-        radius=((ptsx(curve_points(pc,1))-ptsx(curve_points(pc,2)))**2
-     +        +(ptsy(curve_points(pc,1))-ptsy(curve_points(pc,2)))**2)
-        rad = sqrt(radius)
-        dist= ((ptsx(curve_points(pc,1))-xm)**2
-     +        +(ptsy(curve_points(pc,1))-ym)**2)
-        t1=abs((ptsy(curve_points(pc,1))-ptsy(curve_points(pc,2)))
-     +        /(ptsx(curve_points(pc,1))-ptsx(curve_points(pc,2)))) 
-        theta1 = atan(t1)
-        theta2 = theta1+asin(dist/radius)
-        arc_length = radius*(theta2-theta1)
-        count_seg+=1
-        call elm_arc(NEC(pc)
-     +              ,RTC(pc)
-     +              ,xcntr(pc),ycntr(pc)
-     +              ,rad
-     +              ,theta1,theta2
-     +              ,arc_length
-     +              ,0
-     +              ,x2,y2,t2,s2
-     +              ,xm,ym,tm,sm)
+        call elm_line(NEC(pc),RTC(pc)
+     +   ,ptsx(curve_points(pc,1)),ptsy(curve_points(pc,1))
+     +   ,ptsx(curve_points(pc,2)),ptsy(curve_points(pc,2))
+     +   ,0
+     +   ,0
+     +   ,x2,y2,s2
+     +   ,xm,ym,sm)
         
-        
-        inc = curve_points(pc,2)-k
+        count_seg=count_seg+1
+        do i=1,NEC(pc)+1
+         xg2(count_seg,i) = x2(i)
+         yg2(count_seg,i) = y2(i)
+         sg2(count_seg,i) = s2(i)
+        end do
+		  
+        do i = 1,NEC(pc)
+         count_col=count_col+1
+         ddx = xg2(count_seg,i)-xg2(count_seg,i+1)
+         ddy = yg2(count_seg,i)-yg2(count_seg,i+1)
+         elml(count_seg,i)=sqrt((ddx**2)+(ddy**2))
+         x0(count_col) = xm(i)
+         y0(count_col) = ym(i)
+         s0(count_col) = sm(i)
+         tnx0(count_col) = ddx/elml(count_seg,i)
+         tny0(count_col) = ddy/elml(count_seg,i)
+        end do    
+        inc = curve_pts(pc,2)-k
         k=k+inc
         endif
        
