@@ -65,8 +65,13 @@ c-------------------------------------------------------------------------
       end do
 
 c-----------------------------------------------------------------------------
-c Finding out the edge with the smallest side 
+c Measure of ideal distance from the edge
 c----------------------------------------------------------------------------
-      
+      current_edge=>first_edge
+      do while(.not. associated(current_edge))
+          xm = ((current_edge%x1)+(current_edge%x2))/2
+          ym = ((current_edge%y1)+(current_edge%y2))/2
+          
+      end do
       Return
       end
