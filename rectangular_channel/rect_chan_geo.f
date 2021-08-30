@@ -89,9 +89,9 @@ c-------------------------------------
       k = 1
       pl = 0
       pc = 0
-c--------------------------------------------------------
-c We check if the point falls on a collinear segment 
-c--------------------------------------------------------
+c--------------------------------------------------------------------------------------
+c We check if the point falls on a collinear segment and if it does then discretise it
+c-------------------------------------------------------------------------------------
       do while(k<=np)
        do lc = 1,nlinepts
            if(line_points(lc,1).eq.k)then
@@ -122,7 +122,7 @@ c--------------------------------------------------------
         end do
 		  
         do i = 1,NEL(pl)
-         count_col+=1
+         count_col=count_col+1
          ddx = xg2(count_seg,i)-xg2(count_seg,i+1)
          ddy = yg2(count_seg,i)-yg2(count_seg,i+1)
          elml(count_seg,i)=sqrt((ddx**2)+(ddy**2))

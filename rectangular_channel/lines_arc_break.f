@@ -1,6 +1,7 @@
 c============================
 c Author: S.Ray
 c Micorfluidics Lab, IITKGP 2020
+c Please don't provide negative values for the coordinates of the points.... 
 c============================    
       
           subroutine lines_arc_break(ptsx,ptsy)
