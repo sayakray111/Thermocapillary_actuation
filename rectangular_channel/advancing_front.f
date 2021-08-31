@@ -71,7 +71,22 @@ c----------------------------------------------------------------------------
       do while(.not. associated(current_edge))
           xm = ((current_edge%x1)+(current_edge%x2))/2
           ym = ((current_edge%y1)+(current_edge%y2))/2
-          
+          fpx = current_edge%x1
+          fpy = current_edge%y1
+          lpx = current_edge%x2
+          lpy = current_edge%y2
+          dist = sqrt(((fpx-xm)**2)+((fpy-ym)**2))
+          slope1 = (h/dist)
+          slope2 = (lpy-fpy)/(lpx-fpx)
+          xi = ((slope1*slope2*fpx)+xm)/(ym-fpy)
+          yinum = 
+      end do
+      
+      subroutine push(index,edge)
+      type (Front_edge) pointer:: edges
+      edges=>edge
+      return
+      end
       end do
       Return
       end
