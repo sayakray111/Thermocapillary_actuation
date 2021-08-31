@@ -37,20 +37,20 @@ c Creating linked list for all the nodes in the system
 c--------------------------------------------------------------------------------
       type (Front_edge):: pointer first_edge,current_edge
       k = 1
-      first_edge%x1 = xg(k,1)
-      first_edge%y1 = yg(k,1)
-      first_edge%x2 = xg(k,2)
-      first_edge%y2 = yg(k,2)
+      first_edge%x1 => xg(k,1)
+      first_edge%y1 => yg(k,1)
+      first_edge%x2 => xg(k,2)
+      first_edge%y2 => yg(k,2)
       allocate(first_edge)
       current_edge=>first_edge
       k=k+1
       do while(xg(k).le.0.0D0)
           allocate(current_edge%next)         
           current_edge=>current_edge%next
-          current_edge%x1 = xg(k,1)
-          current_edge%y1 = yg(k,1)
-          current_edge%x2 = xg(k,2)
-          current_edge%y2 = yg(k,2)
+          current_edge%x1 => xg(k,1)
+          current_edge%y1 => yg(k,1)
+          current_edge%x2 => xg(k,2)
+          current_edge%y2 => yg(k,2)
           k=k+1          
       end do
       current_edge=>first_edge
@@ -69,12 +69,12 @@ c Measure of ideal distance from the edge
 c----------------------------------------------------------------------------
       current_edge=>first_edge
       do while(.not. associated(current_edge))
-          xm = ((current_edge%x1)+(current_edge%x2))/2
-          ym = ((current_edge%y1)+(current_edge%y2))/2
-          fpx = current_edge%x1
-          fpy = current_edge%y1
-          lpx = current_edge%x2
-          lpy = current_edge%y2
+          fpx <= current_edge%x1
+          fpy <= current_edge%y1
+          lpx <= current_edge%x2
+          lpy <= current_edge%y2
+          xm = (fpx+lpx)/2
+          ym = (fpy+lpy)/2
           dist = sqrt(((fpx-xm)**2)+((fpy-ym)**2))
           slope1 = (h/dist)
           slope2 = (lpy-fpy)/(lpx-fpx)
@@ -82,9 +82,11 @@ c----------------------------------------------------------------------------
           yinum = 
       end do
       
-      subroutine push(index,edge)
-      type (Front_edge) pointer:: edges
+      subroutine push(index,edge,previous_edge,next_edge)
+      type (Front_edge) pointer:: edge
       edges=>edge
+      previous_edge%next=>edges
+      edges%next=>next_edge
       return
       end
       end do
