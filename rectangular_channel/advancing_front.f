@@ -46,14 +46,14 @@ c-------------------------------------------------------------------------------
       k=k+1
       do while(xg(k).le.0.0D0)
           allocate(current_edge%next)         
-          current_edge=>current_edge%next
           current_edge%x1 => xg(k,1)
           current_edge%y1 => yg(k,1)
           current_edge%x2 => xg(k,2)
           current_edge%y2 => yg(k,2)
+          current_edge=>current_edge%next
           k=k+1          
       end do
-      current_edge=>first_edge
+      
 c-----------------------------------------------------------------------
 c Print out the nodes 
 c-------------------------------------------------------------------------
@@ -79,16 +79,48 @@ c----------------------------------------------------------------------------
           slope1 = (h/dist)
           slope2 = (lpy-fpy)/(lpx-fpx)
           xi = ((slope1*slope2*fpx)+xm)/(ym-fpy)
-          yinum = 
+          yinum = (xm-(slope1*slope2*fpx)+(ym*ym*slope2)
+     +           +(ym*xm)-(ym*fpy*slope2)-(fpy*xm))
+          yi = yinum/((ym-fpy)*slope2)
+          call add_front_edge(fpx,fpy,xi,yi,lpx,lpy)
+          current_edge=>current_edge%next
+          
       end do
       
-      subroutine push(index,edge,previous_edge,next_edge)
-      type (Front_edge) pointer:: edge
-      edges=>edge
-      previous_edge%next=>edges
-      edges%next=>next_edge
+      subroutine push_middle(previous_edge,edge,next_edge)
+      type (Front_edge) pointer:: edge,next_edge,previous_edge
+      edge%next=>previous_edge%next
+      previous_edge%next=>edge
       return
       end
-      end do
+      
+      subroutine push_front(edge,next_edge)
+      type (Front_edge) pointer:: edge,next_edge,temp
+      edge%next=>next_edge
+      next_edge=>edge
+      
+      
+      subroutine pop(edge)
+      type (Front_edge) pointer:: edge
+      
+      Return
+      end
+      
+      subroutine add_front_edge(fpx,fpy,spx,spy,tpx,tpy)
+      type (Front_edge) :: edge1,edge2,edge3
+      allocate(edge1,edge2)
+      edge1%x1=>fpx
+      edge1%x2=>spx
+      edge2%x1=>spx
+      edge2%y2=>tpx
+      edge1%y1=>fpy
+      edge1%y2=>spy
+      edge2%y1=>spy
+      edge2%y2=>tpy
+      
+      Return 
+      end
+      
+      
       Return
       end
