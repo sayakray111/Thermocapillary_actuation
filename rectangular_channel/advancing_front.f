@@ -35,7 +35,7 @@ c-------------------------------------------------------------------------------
 c--------------------------------------------------------------------------------------
 c Creating linked list for all the nodes in the system
 c--------------------------------------------------------------------------------
-      pointer (Front_edge) :: first_edge,current_edge
+      type (Front_edge):: pointer first_edge,current_edge
       k = 1
       first_edge%x1 = xg(k,1)
       first_edge%y1 = yg(k,1)
@@ -71,7 +71,22 @@ c----------------------------------------------------------------------------
       do while(.not. associated(current_edge))
           xm = ((current_edge%x1)+(current_edge%x2))/2
           ym = ((current_edge%y1)+(current_edge%y2))/2
-          
+          fpx = current_edge%x1
+          fpy = current_edge%y1
+          lpx = current_edge%x2
+          lpy = current_edge%y2
+          dist = sqrt(((fpx-xm)**2)+((fpy-ym)**2))
+          slope1 = (h/dist)
+          slope2 = (lpy-fpy)/(lpx-fpx)
+          xi = ((slope1*slope2*fpx)+xm)/(ym-fpy)
+          yinum = 
       end do
+      
+      subroutine push(index,edge)
+      type (Front_edge) pointer:: edges
+      edges=>edge
+      return
+      end
+      
       Return
       end
