@@ -34,32 +34,45 @@ c-------------------------------------------------------------------------------
       enddo
       number_points = k
 c--------------------------------------------------------------------------------------
-c Creating linked list for all the nodes in the system
+c Creating circular linked list for all the nodes in the system
 c--------------------------------------------------------------------------------
-      type (Front_edge):: pointer first_edge,current_edge
+      type (Front_edge):: pointer first_edge,last_edge,current_edge
+     +                   ,previous_edge,next_edge
+      
+      allocate(last_edge)
+      last_edge%x1 => xg(k,1)
+      last_edge%y1 => yg(k,1)
+      last_edge%x2 => xg(k,2)
+      last_edge%y2 => yg(k,2)
       k = 1
       allocate(first_edge)
       first_edge%x1 => xg(k,1)
       first_edge%y1 => yg(k,1)
       first_edge%x2 => xg(k,2)
       first_edge%y2 => yg(k,2)
-      
-      current_edge=>first_edge
+      first_edge%next=>last_edge
+      last_edge=>first_edge
       k=k+1
-      do while(xg(k).le.0.0D0)
-          allocate(current_edge%next)         
+      allocate(previous_edge)
+      allocate(next_edge)
+      previous_edge=>first_edge
+      next_edge=>last_edge
+      do while(k<=number_points)
+          allocate(current_edge)         
           current_edge%x1 => xg(k,1)
           current_edge%y1 => yg(k,1)
           current_edge%x2 => xg(k,2)
           current_edge%y2 => yg(k,2)
+          call push_element(previous_edge,current_edge,next_edge)
+          previous_edge=>current_edge
           current_edge=>current_edge%next
           k=k+1          
       end do
-      
+      current_edge=>first_edge
 c-----------------------------------------------------------------------
 c Print out the nodes 
 c-------------------------------------------------------------------------
-      do while(.not. associated(current_edge))
+      do while(current_edge%next.ne.first_edge)
           print(*,*) 'The current edges are formed by the elements :'
      +    ,current_edge%x1,current_edge%y1,current_edge%x2,current_edge
      +    %y2
@@ -67,10 +80,10 @@ c-------------------------------------------------------------------------
       end do
 
 c-----------------------------------------------------------------------------
-c Measure of ideal distance from the edge
+c Now form the algorithm
 c----------------------------------------------------------------------------
       current_edge=>first_edge
-      do while(.not. associated(current_edge))
+      do while(current_edge%next.ne.first_edge)
           fpx <= current_edge%x1
           fpy <= current_edge%y1
           lpx <= current_edge%x2
@@ -82,45 +95,41 @@ c----------------------------------------------------------------------------
           slope2=(dist+(slope1*h))/(h-(slope1*dist))
           
           call proximity_search(xi,yi,h,number_points)
-          call add_front_edge(fpx,fpy,xi,yi,lpx,lpy)
+          call delete_front_edges(fpx,fpy,lpx,lpy)
+          call add_front_edges(fpx,fpy,xi,yi,lpx,lpy)
           current_edge=>current_edge%next
           
       end do
+c----------------------------------------------------------------------------
+c Subroutine to push an edge into the front -----------------------------------------
+c--------------------------------------------------------------------------
       
-      subroutine push_middle(previous_edge,edge,next_edge)
+      subroutine push_element(previous_edge,edge,next_edge,first_edge
+     +                      ,last_edge)
       type (Front_edge) pointer:: edge,next_edge,previous_edge
       edge%next=>previous_edge%next
       previous_edge%next=>edge
       return
       end
       
-      subroutine push_front(edge,next_edge)
-      type (Front_edge) pointer:: edge,next_edge,temp
-      edge%next=>next_edge
-      next_edge=>edge
+c----------------------------------------------------------------------------
+c Subroutine to delete an edge from the front-----------------------------------------
+c--------------------------------------------------------------------------
       
-      
-      subroutine pop(edge)
-      type (Front_edge) pointer:: edge
-      
+      subroutine pop(edge,previous_edge,first_edge,last_edge)
+      type (Front_edge) pointer:: edge,previous_edge,temp
+      temp=>first_edge
+      if(edge=>first_edge)then
+         do while(temp%next.ne.first_edge)
+             temp=>temp%next
+         end do
+      temp%next=>edge%next
+      else if(
+      end if
       Return
       end
       
-      subroutine add_front_edge(fpx,fpy,spx,spy,tpx,tpy)
-      type (Front_edge) :: edge1,edge2,edge3
-      allocate(edge1,edge2)
-      edge1%x1=>fpx
-      edge1%x2=>spx
-      edge2%x1=>spx
-      edge2%y2=>tpx
-      edge1%y1=>fpy
-      edge1%y2=>spy
-      edge2%y1=>spy
-      edge2%y2=>tpy
-      
-      Return 
-      end
-      
-      
+   
+
       Return
       end
