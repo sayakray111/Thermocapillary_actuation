@@ -10,7 +10,7 @@
      +         ,Actis(nsg)
       Dimension RT(nsg),x2(500),y2(500),s2(500)
       Dimension x0(500),y0(500)
-      Dimension xg(200*nsg),yg(200*nsg)
+      Dimension xg(200*nsg,2),yg(200*nsg,2)
       
       common /xxx01/ nsg
       common /xxx02/ xnctr,ynctr,NE,Itp,RT
@@ -32,28 +32,30 @@ c-------------------------------------------------------------------------------
              k=k+1
          enddo
       enddo
+      number_points = k
 c--------------------------------------------------------------------------------------
 c Creating linked list for all the nodes in the system
 c--------------------------------------------------------------------------------
       type (Front_edge):: pointer first_edge,current_edge
       k = 1
-      first_edge%x1 = xg(k,1)
-      first_edge%y1 = yg(k,1)
-      first_edge%x2 = xg(k,2)
-      first_edge%y2 = yg(k,2)
       allocate(first_edge)
+      first_edge%x1 => xg(k,1)
+      first_edge%y1 => yg(k,1)
+      first_edge%x2 => xg(k,2)
+      first_edge%y2 => yg(k,2)
+      
       current_edge=>first_edge
       k=k+1
       do while(xg(k).le.0.0D0)
           allocate(current_edge%next)         
+          current_edge%x1 => xg(k,1)
+          current_edge%y1 => yg(k,1)
+          current_edge%x2 => xg(k,2)
+          current_edge%y2 => yg(k,2)
           current_edge=>current_edge%next
-          current_edge%x1 = xg(k,1)
-          current_edge%y1 = yg(k,1)
-          current_edge%x2 = xg(k,2)
-          current_edge%y2 = yg(k,2)
           k=k+1          
       end do
-      current_edge=>first_edge
+      
 c-----------------------------------------------------------------------
 c Print out the nodes 
 c-------------------------------------------------------------------------
@@ -69,24 +71,56 @@ c Measure of ideal distance from the edge
 c----------------------------------------------------------------------------
       current_edge=>first_edge
       do while(.not. associated(current_edge))
-          xm = ((current_edge%x1)+(current_edge%x2))/2
-          ym = ((current_edge%y1)+(current_edge%y2))/2
-          fpx = current_edge%x1
-          fpy = current_edge%y1
-          lpx = current_edge%x2
-          lpy = current_edge%y2
-          dist = sqrt(((fpx-xm)**2)+((fpy-ym)**2))
-          slope1 = (h/dist)
-          slope2 = (lpy-fpy)/(lpx-fpx)
-          xi = ((slope1*slope2*fpx)+xm)/(ym-fpy)
-          yinum = 
+          fpx <= current_edge%x1
+          fpy <= current_edge%y1
+          lpx <= current_edge%x2
+          lpy <= current_edge%y2
+          xm = (fpx+lpx)/2
+          ym = (fpy+lpy)/2
+          slope1 = (lpy-fpy)/(lpx-fpx)
+          dist=sqrt(((fpx-xm)**2)+((fpy-ym)**2))
+          slope2=(dist+(slope1*h))/(h-(slope1*dist))
+          
+          call proximity_search(xi,yi,h,number_points)
+          call add_front_edge(fpx,fpy,xi,yi,lpx,lpy)
+          current_edge=>current_edge%next
+          
       end do
       
-      subroutine push(index,edge)
-      type (Front_edge) pointer:: edges
-      edges=>edge
+      subroutine push_middle(previous_edge,edge,next_edge)
+      type (Front_edge) pointer:: edge,next_edge,previous_edge
+      edge%next=>previous_edge%next
+      previous_edge%next=>edge
       return
       end
+      
+      subroutine push_front(edge,next_edge)
+      type (Front_edge) pointer:: edge,next_edge,temp
+      edge%next=>next_edge
+      next_edge=>edge
+      
+      
+      subroutine pop(edge)
+      type (Front_edge) pointer:: edge
+      
+      Return
+      end
+      
+      subroutine add_front_edge(fpx,fpy,spx,spy,tpx,tpy)
+      type (Front_edge) :: edge1,edge2,edge3
+      allocate(edge1,edge2)
+      edge1%x1=>fpx
+      edge1%x2=>spx
+      edge2%x1=>spx
+      edge2%y2=>tpx
+      edge1%y1=>fpy
+      edge1%y2=>spy
+      edge2%y1=>spy
+      edge2%y2=>tpy
+      
+      Return 
+      end
+      
       
       Return
       end

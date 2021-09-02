@@ -133,7 +133,7 @@ c-------------------------------------------------------------------------------
          tny0(count_col) = ddy/elml(count_seg,i)
         end do    
         inc = line_pts(pl,2)-k
-        k=k+inc
+        k=k+inc+1
 c---------------------------------------------------------------------------------
 c We check if it falls on a curvy segment and if it does then discretise it 
 c---------------------------------------------------------------------------------
@@ -165,7 +165,7 @@ c-------------------------------------------------------------------------------
          tny0(count_col) = ddy/elml(count_seg,i)
         end do    
         inc = curve_pts(pc,2)-k
-        k=k+inc
+        k=k+inc+1
         endif
        
       end do
