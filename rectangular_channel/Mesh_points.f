@@ -12,5 +12,7 @@ c-------------------------------------------------------------------------------
       Dimension Nodes_x_elem(500,6), Nodes_y_elem(500,6)
      +         ,Nodes_z_elem(500,6)
       Dimension Elem_conect(ne,6)
+      
+      open (2,file="rectangular_surface.msh")
       return
       end
