@@ -110,9 +110,7 @@ c---------------------------------------------------------------
           prodz = (slope1x*slope2y-slope2x*slope1y)
           prod = sqrt((prodx**2)+(prody**2)+(prodz**2))
           if(abs(prod).le.0.0D0)then
-              if(p1.eq.0.0D0)then
-                  p1=p1+1
-              end if
+              p1=p1+1
               line_points(p1,1) = am
               line_points(p1,2) = 1
           else
@@ -123,13 +121,21 @@ c---------------------------------------------------------------
 c----------------------------------------------------------------------------
 c find out the number of non sharp gradients ----------------------
 c---------------------------------------------------------------------------
-          do jk = 1,len(line_points)
+          do jk = 1,size(line_points)
            if(line_points(jk,1).neq.0)then
             nlinepts+=1
            end if
-          end do        
+          end do    
+c----------------------------------------------------------------------------
+c find out the number of sharp gradient segments ----------------------
+c---------------------------------------------------------------------------    
+          do jk = 1,size(curve_points)
+           if(curve_points(jk,1).neq.0)then
+            ncurvepts+=1
+           end if
+          end do
 c-----------------------------------------------------------------------------------------------
-c Cleaning the curved sections data and assigning zero elements and last element to the curved set
+c Cleaning the curved sections data and assigning zero elements to the common points
 c---------------------------------------------------------------------------------------------		
           do h = 1,nlinepts
            do a = 1,ncurvepts
@@ -139,18 +145,6 @@ c-------------------------------------------------------------------------------
             end if
            end do
           end do
-c----------------------------------------------------------------------------
-c find out the number of sharp gradient segments ----------------------
-c---------------------------------------------------------------------------    
-          do jk = 1,size(curve_points)
-           if(curve_points(jk,1).neq.0)then
-            ncurvepts+=1
-           end if
-          end do
-c---------------------------------------------------------------
-c Joining the last two points to get another curved segment------
-c-------------------------------------
-          curve_points(ncurvepts+1,1)=size(ptsx)
-          curve_points(ncurvepts+1,2)=1
+
           return 
           end
