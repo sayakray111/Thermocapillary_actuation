@@ -5,6 +5,7 @@
       Dimension xg(nsg*200,2),yg(nsg*200,2)
       common /xxx01/ prptsx,prptsy
       common /xxx02/ xg,yg
+      common /xxx03/ first_edge,last_edge
       alpha = 0.1
       radius = alpha*h
       do i = 1,number_points
