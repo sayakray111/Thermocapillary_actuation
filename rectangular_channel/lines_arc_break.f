@@ -1,7 +1,7 @@
 c============================
 c Author: S.Ray
 c Micorfluidics Lab, IITKGP 2020
-c Please don't provide negative values for the coordinates of the points.... 
+c This routine creates a boundary mesh for the advancing front method.
 c============================    
       
           subroutine lines_arc_break(ptsx,ptsy)
@@ -11,7 +11,7 @@ c============================
           Integer*8 :: line_points(500,2),curve_points(500,2)
           Integer :: i,pl,p1,inc,flag
           real*8 :: slope1,slope2
-		
+ 		
           error_margin = 0.0001D0
           nlinepts = 0
           ncurvepts = 0
@@ -32,17 +32,36 @@ c------------------------------------------
            curve_points(ll,2) = 0.0D0
           end do
 c------------------------------------------------
-c Extracting the collinear points from the set
+c Initializing some flags and values.
 c-------------------------------------------------
           inc = 1
           p1 = 0
           pl = 1
           flag = 0
           i=1
+c-------------------------------------------------
+c First input the points 
+c----------------------------------------------------
+          call boundary_points()
+c------------------------------------------------------------------
+c Taking care of the first two corners
+c---------------------------------------------------------------------
+          slope1=(ptsx(1+1)-ptsx(1))
+          slope2=(ptsx(1+2)-ptsx(1))
+          if(abs(slope1-slope2).le.0.0D0)then
+              i = 1
+          else
+              curve_points(1,1) = 1
+              curve_points(1,2) = 2
+              pl=pl+1
+          end if
+c----------------------------------------------------------------------------
+c detecting the rest of the curved/straight segments------------------------
+c---------------------------------------------------------------------------
           do while(i<=size(ptsx))
-           slope1=(ptsy(i+1)-ptsy(i))/(ptsx(i+1)-ptsx(i))
+           slope1=(ptsx(i+1)-ptsx(i))
            do k = 2,size(ptsx)-i
-            slope2=(ptsy(i+k)-ptsy(i))/(ptsx(i+k)-ptsx(i))
+            slope2=(ptsx(i+k)-ptsx(i))
             if(abs(slope1-slope2).Le.error_margin)then
              if(flag.eq.0)then
                p1=p1+1
@@ -62,16 +81,39 @@ c-------------------------------------------------
            i=i+inc
            flag = 0
           end do
+c-----------------------------------------------------------------------
+c Taking care of the last segment between the last two points 
+c---------------------------------------------------------------
+          am = size(ptsx)-1
+          slope1=(ptsx(am+1)-ptsx(am))
+          slope2=(ptsx(1)-ptsx(am))
+          if(abs(slope1-slope2).le.0.0D0)then
+              p1=p1+1
+              line_points(p1,1) = am
+              line_points(p1,2) = 1
+          else
+              curve_points(pl,1) = size(ptsx)
+              curve_points(pl,2) = 1
+              pl=pl+1
+          end if
 c----------------------------------------------------------------------------
 c find out the number of non sharp gradients ----------------------
 c---------------------------------------------------------------------------
-          do jk = 1,len(line_points)
+          do jk = 1,size(line_points)
            if(line_points(jk,1).neq.0)then
             nlinepts+=1
            end if
-          end do        
+          end do    
+c----------------------------------------------------------------------------
+c find out the number of sharp gradient segments ----------------------
+c---------------------------------------------------------------------------    
+          do jk = 1,size(curve_points)
+           if(curve_points(jk,1).neq.0)then
+            ncurvepts+=1
+           end if
+          end do
 c-----------------------------------------------------------------------------------------------
-c Cleaning the curved sections data and assigning zero elements and last element to the curved set
+c Cleaning the curved sections data and assigning zero elements to the common points
 c---------------------------------------------------------------------------------------------		
           do h = 1,nlinepts
            do a = 1,ncurvepts
@@ -81,18 +123,6 @@ c-------------------------------------------------------------------------------
             end if
            end do
           end do
-c----------------------------------------------------------------------------
-c find out the number of sharp gradient segments ----------------------
-c---------------------------------------------------------------------------    
-          do jk = 1,size(curve_points)
-           if(curve_points(jk,1).neq.0)then
-            ncurvepts+=1
-           end if
-          end do
-c---------------------------------------------------------------
-c Joining the last two points to get another curved segment------
-c-------------------------------------
-          curve_points(ncurvepts+1,1)=size(ptsx)
-          curve_points(ncurvepts+1,2)=1
+
           return 
           end
